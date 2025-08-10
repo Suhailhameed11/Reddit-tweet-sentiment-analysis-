@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sentiment Analysis - Twitter & Reddit</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center overlay text-white">
+
+  <div class="text-center p-10 rounded-3xl backdrop-blur-lg bg-black/40 shadow-2xl max-w-2xl w-full mx-4">
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-green-200 drop-shadow-lg">Sentimental Analysis</h1>
+    <h2 class="text-xl md:text-2xl font-medium mb-2 text-gray-200">of Twitter and Reddit Data</h2>
+    <p class="text-md md:text-lg mb-6 text-gray-300">Enter any sentence below and we'll detect the sentiment behind it.</p>
+    
+    <input
+      type="text"
+      id="sentenceInput"
+      placeholder="e.g., I love how this project turned out!"
+      class="w-full p-3 rounded-xl text-black text-lg mb-4 border-2 border-green-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+    />
+    
+    <button
+      onclick="analyzeSentiment()"
+      class="bg-green-500 hover:bg-green-600 text-white text-lg font-semibold py-2 px-8 rounded-xl transition duration-300"
+    >
+      Analyze Sentiment
+    </button>
+    
+    <div id="result" class="mt-6 text-2xl font-semibold text-white"></div>
+  </div>
+
+  <script>
+    async function analyzeSentiment() {
+      const input = document.getElementById('sentenceInput').value.trim();
+      const resultBox = document.getElementById('result');
+      
+      if (!input) {
+        resultBox.textContent = "⚠️ Please enter a sentence.";
+        return;
+      }
+
+      resultBox.textContent = "⏳ Analyzing...";
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: input })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          resultBox.textContent = `✅ Sentiment: ${data.sentiment}`;
+        } else {
+          resultBox.textContent = `❌ Error: ${data.error}`;
+        }
+      } catch (error) {
+        resultBox.textContent = "🚨 Server error. Please try again.";
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
